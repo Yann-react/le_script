@@ -4,6 +4,7 @@ import { useState } from 'react';
 import BookCard from './BookCard';
 
 interface Book {
+  id: number;           // ← Ajoute cette ligne
   image: string;
   author: string;
   title: string;
@@ -34,8 +35,6 @@ export default function BooksCarousel({ books, title }: BooksCarouselProps) {
   };
 
   const visibleBooks = books.slice(currentIndex, currentIndex + itemsPerPage);
-  const maxIndex = Math.max(books.length - itemsPerPage, 0);
-  const sliderValue = maxIndex > 0 ? (currentIndex / maxIndex) * 100 : 0;
 
   return (
     <section className="relative max-w-7xl mx-auto px-6 py-16">
@@ -58,14 +57,22 @@ export default function BooksCarousel({ books, title }: BooksCarouselProps) {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {visibleBooks.map((book, index) => (
-            <BookCard key={currentIndex + index} {...book} />
+          {visibleBooks.map((book) => (
+            <BookCard 
+              key={book.id}           // ← Meilleure clé
+              id={book.id}            // ← Passe l'id
+              image={book.image}
+              author={book.author}
+              title={book.title}
+              price={book.price}
+              rating={book.rating}
+            />
           ))}
         </div>
 
         <button
           onClick={goNext}
-          disabled={currentIndex >= maxIndex}
+          disabled={currentIndex >= Math.max(books.length - itemsPerPage, 0)}
           className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-16 z-10 flex items-center justify-center w-12 h-12 rounded-full disabled:opacity-50"
           style={{ backgroundColor: '#BF0F0F' }}
         >
@@ -74,25 +81,6 @@ export default function BooksCarousel({ books, title }: BooksCarouselProps) {
           </svg>
         </button>
       </div>
-
-      {totalPages > 1 && (
-        <div className="mt-12 px-4 flex justify-end">
-          <div className="relative w-[280px] h-3 rounded-full bg-red-200/30 overflow-hidden">
-            <div
-              className="absolute left-0 top-0 h-full rounded-full bg-[#BF0F0F]"
-              style={{ width: `${sliderValue}%` }}
-            />
-            <input
-              type="range"
-              min={0}
-              max={maxIndex}
-              value={currentIndex}
-              onChange={(event) => setCurrentIndex(Number(event.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </div>
-        </div>
-      )}
     </section>
   );
 }

@@ -1,10 +1,24 @@
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 
-export default function Hero() {
+interface HeroProps {
+  onSearch: (searchTerm: string, type: string) => void;
+}
+
+export default function Hero({ onSearch }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white to-red-200">
-      <div className="absolute inset-0" style={{backgroundImage: 'url(/livre.png)', backgroundSize: 'contain', backgroundPosition: 'center bottom', backgroundRepeat: 'no-repeat', opacity: 0.4}}></div>
+      <div 
+        className="absolute inset-0" 
+        style={{
+          backgroundImage: 'url(/livre.png)', 
+          backgroundSize: 'contain', 
+          backgroundPosition: 'center bottom', 
+          backgroundRepeat: 'no-repeat', 
+          opacity: 0.4
+        }}
+      ></div>
+
       <div className="relative max-w-7xl mx-auto px-6 pt-8 pb-48">
         <div className="grid gap-10 lg:grid-cols-2 items-center relative z-10">
           <div className="space-y-6">
@@ -22,7 +36,7 @@ export default function Hero() {
 
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-2xl bg-red-700 px-8 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-200"
+              className="inline-flex items-center justify-center rounded-2xl bg-red-700 px-8 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg transition hover:bg-red-800"
             >
               Découvrir
             </button>
@@ -37,10 +51,9 @@ export default function Hero() {
             </p>
           </div>
         </div>
-
       </div>
 
-      <SearchBar />
+      <SearchBar onSearch={onSearch} />
     </section>
   );
 }

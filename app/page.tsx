@@ -1,133 +1,160 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
 import Header from "@/Components/layout/Header";
 import Hero from "@/Components/hero/Hero";
 import BooksCarousel from "@/Components/BooksCarousel";
 import Footer from "@/Components/layout/Footer";
+import BookCard from '@/Components/BookCard';
+
+const API_BASE_URL = 'http://localhost:3005';
+
+interface Book {
+  id: number;
+  nom: string;
+  auteur: string;
+  prix: number;
+  urlImage?: string;
+  type?: { nomType: string };
+}
+
+interface TypeLivre {
+  id: number;
+  nomType: string;
+}
 
 export default function Home() {
-  const newBooks = [
-    {
-      image: "/livre.png",
-      author: "Victor Hugo",
-      title: "Les Misérables",
-      price: 14.99,
-      rating: 5,
-    },
-    {
-      image: "/livre.png",
-      author: "Jules Verne",
-      title: "Le Tour du Monde",
-      price: 12.99,
-      rating: 4.5,
-    },
-    {
-      image: "/livre.png",
-      author: "Alexandre Dumas",
-      title: "Le Comte de Monte Cristo",
-      price: 16.99,
-      rating: 5,
-    },
-    {
-      image: "/livre.png",
-      author: "Gustave Flaubert",
-      title: "Madame Bovary",
-      price: 13.99,
-      rating: 4,
-    },
-    {
-      image: "/livre.png",
-      author: "Honoré de Balzac",
-      title: "Le Père Goriot",
-      price: 15.99,
-      rating: 4.5,
-    },
-    {
-      image: "/livre.png",
-      author: "Émile Zola",
-      title: "L'Assommoir",
-      price: 14.99,
-      rating: 4,
-    },
-  ];
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [types, setTypes] = useState<TypeLivre[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const articleBooks = [
-    {
-      image: "/livre.png",
-      author: "George Sand",
-      title: "La Mare au Diable",
-      price: 11.99,
-      rating: 4,
-    },
-    {
-      image: "/livre.png",
-      author: "Alphonse Daudet",
-      title: "Tartarin de Tarascon",
-      price: 10.99,
-      rating: 4.5,
-    },
-    {
-      image: "/livre.png",
-      author: "Paul Verlaine",
-      title: "Fêtes galantes",
-      price: 9.99,
-      rating: 4,
-    },
-    {
-      image: "/livre.png",
-      author: "Arthur Rimbaud",
-      title: "Une Saison en Enfer",
-      price: 12.49,
-      rating: 5,
-    },
-    {
-      image: "/livre.png",
-      author: "Stendhal",
-      title: "Le Rouge et le Noir",
-      price: 13.49,
-      rating: 4.5,
-    },
-    {
-      image: "/livre.png",
-      author: "Charles Baudelaire",
-      title: "Les Fleurs du mal",
-      price: 14.49,
-      rating: 5,
-    },
-    {
-      image: "/livre.png",
-      author: "Honoré de Balzac",
-      title: "Eugénie Grandet",
-      price: 12.99,
-      rating: 4,
-    },
-    {
-      image: "/livre.png",
-      author: "Victor Hugo",
-      title: "Notre-Dame de Paris",
-      price: 15.49,
-      rating: 5,
-    },
-  ];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [priceRange, setPriceRange] = useState(100);
+
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const articlesSectionRef = useRef<HTMLDivElement>(null);
+
+  // Récupération des données
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [booksRes, typesRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/livres`),
+          fetch(`${API_BASE_URL}/types-livre`)
+        ]);
+
+        const booksData: Book[] = await booksRes.json();
+        const typesData: TypeLivre[] = await typesRes.json();
+
+        setAllBooks(booksData);
+        setFilteredBooks(booksData);
+        setTypes(typesData);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Filtrage
+  useEffect(() => {
+    let result = [...allBooks];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(book =>
+        book.nom.toLowerCase().includes(term) || 
+        book.auteur.toLowerCase().includes(term)
+      );
+    }
+
+    if (selectedType) {
+      result = result.filter(book => book.type?.nomType === selectedType);
+    }
+
+    result = result.filter(book => book.prix <= priceRange);
+
+    setFilteredBooks(result);
+  }, [allBooks, searchTerm, selectedType, priceRange]);
+
+  const handleHeroSearch = (term: string, type: string) => {
+    setSearchTerm(term);
+    setSelectedType(type);
+
+    setTimeout(() => {
+      articlesSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 150);
+  };
+
+  // Navigation depuis le Header
+  const scrollToSection = (section: string) => {
+    if (section === 'Accueil') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (section === 'Nouveau ouvrage') {
+      carouselRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (section === 'Article') {
+      articlesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-xl">Chargement des livres...</div>;
+  }
+
+const newBooksForCarousel = allBooks
+  .sort((a, b) => b.id - a.id)
+  .slice(0, 6)
+  .map(book => ({
+    id: book.id,                    // ← Ajoute l'id
+    image: book.urlImage || "/livre.png",
+    author: book.auteur,
+    title: book.nom,
+    price: book.prix,
+    rating: 4.5,
+  }));
 
   return (
     <main className="min-h-screen bg-white relative overflow-hidden">
-      <Header />
-      <Hero />
-      
-      <BooksCarousel books={newBooks} title="Nouveaux Articles" />
+      <Header onNavigate={scrollToSection} />
 
-      <section className="relative max-w-7xl mx-auto px-6 py-16">
+      <Hero onSearch={handleHeroSearch} />
+
+      {/* Section Nouveaux Articles */}
+      <div ref={carouselRef}>
+        <BooksCarousel books={newBooksForCarousel} title="Nouveaux Articles" />
+      </div>
+
+      {/* Section Articles */}
+      <section ref={articlesSectionRef} className="relative max-w-7xl mx-auto px-6 py-16 scroll-mt-24">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-4xl font-bold" style={{ color: '#BF0F0F' }}>
             Articles
           </h2>
         </div>
 
+        {/* Filtre */}
         <div className="rounded-[32px] bg-[#0B1C40] p-6 text-white shadow-lg">
           <div className="grid gap-4 lg:grid-cols-[1.5fr_0.8fr] xl:grid-cols-[1.2fr_0.9fr_1.2fr] items-center">
+            
             <div className="space-y-4">
-              <label className="block text-sm font-semibold">Prix</label>
+              <label className="block text-sm font-semibold">Prix max : {priceRange}€</label>
               <div className="space-y-2">
-                <input type="range" min="0" max="100" className="w-full accent-white" />
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={priceRange}
+                  onChange={(e) => setPriceRange(Number(e.target.value))}
+                  className="w-full accent-white" 
+                />
                 <div className="flex justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
                   <span>0€</span>
                   <span>100€</span>
@@ -137,11 +164,17 @@ export default function Home() {
 
             <div className="space-y-4">
               <label className="block text-sm font-semibold">Type</label>
-              <select className="w-full rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-white shadow-sm outline-none focus:border-white">
-                <option className="bg-white text-[#0B1C40]">Roman</option>
-                <option className="bg-white text-[#0B1C40]">Poésie</option>
-                <option className="bg-white text-[#0B1C40]">Histoire</option>
-                <option className="bg-white text-[#0B1C40]">Essai</option>
+              <select 
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-white shadow-sm outline-none focus:border-white appearance-none"
+              >
+                <option value="">Tous les types</option>
+                {types.map((type) => (
+                  <option key={type.id} value={type.nomType} className="text-black bg-white">
+                    {type.nomType}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -150,26 +183,32 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="Nom ou auteur"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-white shadow-sm outline-none focus:border-white"
               />
             </div>
           </div>
         </div>
 
+        {/* Résultats */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {articleBooks.map((book, index) => (
-            <div key={index} className="rounded-3xl bg-white p-4 shadow-lg">
-              <img src={book.image} alt={book.title} className="w-full h-64 object-cover rounded-3xl" />
-              <div className="mt-5 text-center">
-                <p className="text-sm text-[#0B1C40]">{book.author}</p>
-                <p className="mt-1 text-base font-bold text-[#0B1C40]">{book.title}</p>
-              </div>
-              <div className="mt-4 flex items-center justify-between text-sm font-semibold text-[#BF0F0F]">
-                <span>${book.price.toFixed(2)}</span>
-                <span>{'⭐'.repeat(Math.floor(book.rating))}</span>
-              </div>
-            </div>
-          ))}
+          {filteredBooks.length > 0 ? (
+            filteredBooks.map((book) => (
+              <BookCard 
+                key={book.id}
+                image={book.urlImage || "/livre.png"}
+                author={book.auteur}
+                title={book.nom}
+                price={book.prix}
+                rating={4.5}
+              />
+            ))
+          ) : (
+            <p className="col-span-full text-center text-gray-500 py-10">
+              Aucun livre trouvé avec ces critères.
+            </p>
+          )}
         </div>
       </section>
 
