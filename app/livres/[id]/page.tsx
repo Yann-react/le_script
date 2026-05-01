@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/Components/layout/Header";
@@ -32,8 +32,7 @@ interface Avis {
 
 export default function DetailProduct() {
   const params = useParams();
-  const router = useRouter();
-  const bookId = params?.id as string;
+  const bookIdString = params?.id as string;
 
   const [book, setBook] = useState<Book | null>(null);
   const [avis, setAvis] = useState<Avis[]>([]);
@@ -48,23 +47,38 @@ export default function DetailProduct() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
-    if (!bookId) return;
+    if (!bookIdString) return;
+
+    const numericId = parseInt(bookIdString);
+
+    // Vérification si l'ID est valide
+    if (isNaN(numericId)) {
+      console.error("ID invalide :", bookIdString);
+      setLoading(false);
+      return;
+    }
 
     const fetchBookDetail = async () => {
       try {
-        const bookRes = await fetch(`${API_BASE_URL}/livres/${bookId}`);
+        // Récupérer le livre
+        const bookRes = await fetch(`${API_BASE_URL}/livres/${numericId}`);
         if (!bookRes.ok) throw new Error("Livre non trouvé");
         const bookData = await bookRes.json();
 
-        const avisRes = await fetch(`${API_BASE_URL}/avis/livre/${bookId}`);
+        // Récupérer les avis du livre
+        const avisRes = await fetch(`${API_BASE_URL}/avis/livre/${numericId}`);
         const avisData = await avisRes.json();
 
+        // Récupérer les livres similaires (même type)
         let relatedData: Book[] = [];
         if (bookData.typeId) {
           const relatedRes = await fetch(`${API_BASE_URL}/livres?typeId=${bookData.typeId}`);
           if (relatedRes.ok) {
             relatedData = await relatedRes.json();
-            relatedData = relatedData.filter((b: Book) => b.id !== bookData.id).slice(0, 6);
+            // Exclure le livre actuel et limiter à 6
+            relatedData = relatedData
+              .filter((b: Book) => b.id !== bookData.id)
+              .slice(0, 6);
           }
         }
 
@@ -79,12 +93,15 @@ export default function DetailProduct() {
     };
 
     fetchBookDetail();
-  }, [bookId]);
+  }, [bookIdString]);
 
   // Soumission du formulaire d'avis
   const handleSubmitAvis = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nom || !commentaire) return;
+    if (!nom || !commentaire || !bookIdString) return;
+
+    const numericId = parseInt(bookIdString);
+    if (isNaN(numericId)) return;
 
     setSubmitting(true);
 
@@ -96,7 +113,7 @@ export default function DetailProduct() {
           nom,
           commentaire,
           notation,
-          livreId: parseInt(bookId),
+          livreId: numericId,
         }),
       });
 
@@ -107,11 +124,10 @@ export default function DetailProduct() {
         setNotation(5);
 
         // Rafraîchir les avis
-        const avisRes = await fetch(`${API_BASE_URL}/avis/livre/${bookId}`);
+        const avisRes = await fetch(`${API_BASE_URL}/avis/livre/${numericId}`);
         const newAvis = await avisRes.json();
         setAvis(newAvis);
 
-        // Masquer le message de succès après 3 secondes
         setTimeout(() => setSubmitSuccess(false), 3000);
       } else {
         alert("Erreur lors de l'envoi de l'avis");
@@ -125,24 +141,24 @@ export default function DetailProduct() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-xl">Chargement du livre...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl">
+        Chargement du livre...
+      </div>
+    );
   }
 
   if (!book) {
-    return <div className="min-h-screen flex items-center justify-center">Livre non trouvé</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl">
+        Livre non trouvé
+      </div>
+    );
   }
 
   const averageRating = avis.length > 0 
     ? (avis.reduce((sum, a) => sum + a.notation, 0) / avis.length).toFixed(1) 
     : "0.0";
-
-  const reviewBreakdown = [
-    { stars: 5, count: avis.filter(a => a.notation === 5).length, percent: 55 },
-    { stars: 4, count: avis.filter(a => a.notation === 4).length, percent: 24 },
-    { stars: 3, count: avis.filter(a => a.notation === 3).length, percent: 10 },
-    { stars: 2, count: avis.filter(a => a.notation === 2).length, percent: 5 },
-    { stars: 1, count: avis.filter(a => a.notation === 1).length, percent: 6 },
-  ];
 
   return (
     <>
@@ -155,6 +171,7 @@ export default function DetailProduct() {
           </Link>
 
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-start">
+            {/* Image du livre */}
             <div className="overflow-hidden rounded-[40px] bg-[#F8FAFC] shadow-2xl">
               <Image
                 src={book.urlImage || "/livre.png"}
@@ -166,6 +183,7 @@ export default function DetailProduct() {
               />
             </div>
 
+            {/* Informations du livre */}
             <div className="flex h-full flex-col justify-between gap-8">
               <div className="space-y-4">
                 <h1 className="text-5xl font-black leading-tight" style={{ color: '#0B1C40' }}>
@@ -175,36 +193,32 @@ export default function DetailProduct() {
                   {book.auteur}
                 </p>
                 <p className="text-4xl font-bold" style={{ color: '#BF0F0F' }}>
-                  ${book.prix.toFixed(2)}
+                  {book.prix.toLocaleString('fr-FR')} FCFA
                 </p>
                 <p className="max-w-xl text-base leading-8" style={{ color: '#0B1C40' }}>
                   {book.description || "Un chef-d'œuvre de la littérature classique."}
                 </p>
               </div>
 
-              {/* Bouton Commander via WhatsApp */}
+              {/* Bouton WhatsApp */}
               <div className="mt-auto flex justify-start">
                 <button 
                   onClick={() => {
                     const message = `Bonjour,%0AJe suis intéressé(e) par le livre *${book.nom}* de ${book.auteur}.%0A%0APouvez-vous me confirmer le prix et la disponibilité ?%0A%0AMerci !`;
-                    const whatsappUrl = `https://wa.me/2250767571379?text=${message}`; // ← Change le numéro
-                    window.open(whatsappUrl, '_blank');
+                    window.open(`https://wa.me/2250767571379?text=${message}`, '_blank');
                   }}
                   className="rounded-xl bg-[#25D366] hover:bg-[#128C7E] px-10 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg transition flex items-center gap-3"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.485-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                  </svg>
                   Commander via WhatsApp
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Section Stats + Avis */}
+          {/* Section Avis et Formulaire */}
           <section className="mt-24 grid gap-10 lg:grid-cols-[1.3fr_0.7fr]">
+            {/* Stats + Commentaires */}
             <div className="space-y-6">
-              {/* Stats */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-3xl border border-[#0B1C40]/10 bg-[#F8FAFC] p-6">
                   <p className="text-sm uppercase tracking-[0.24em] text-[#0B1C40]">Nombre d'avis</p>
@@ -220,24 +234,6 @@ export default function DetailProduct() {
                     </p>
                     <Star className="fill-current text-[#BF0F0F]" size={32} />
                   </div>
-                </div>
-              </div>
-
-              {/* Classement des notes */}
-              <div className="rounded-[32px] border border-[#0B1C40]/10 bg-[#F8FAFC] p-6">
-                <h2 className="text-2xl font-bold" style={{ color: '#0B1C40' }}>
-                  Classement des notes
-                </h2>
-                <div className="mt-6 space-y-4">
-                  {reviewBreakdown.map((item) => (
-                    <div key={item.stars} className="flex items-center gap-4">
-                      <span className="w-10 text-sm font-semibold text-[#0B1C40]">{item.stars}★</span>
-                      <div className="flex-1 overflow-hidden rounded-full bg-slate-200">
-                        <div className="h-3 rounded-full bg-[#BF0F0F]" style={{ width: `${item.percent}%` }} />
-                      </div>
-                      <span className="w-12 text-right text-sm text-slate-600">{item.count}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -273,7 +269,7 @@ export default function DetailProduct() {
               </div>
             </div>
 
-            {/* Formulaire d'avis fonctionnel */}
+            {/* Formulaire pour laisser un avis */}
             <div className="rounded-[32px] border border-[#0B1C40]/10 bg-[#F8FAFC] p-6">
               <h3 className="text-xl font-bold mb-6" style={{ color: '#0B1C40' }}>
                 Laissez votre avis
@@ -303,7 +299,6 @@ export default function DetailProduct() {
                   className="w-full min-h-[140px] rounded-2xl border border-[#0B1C40]/20 bg-white px-4 py-3 outline-none"
                 />
 
-                {/* Sélection d'étoiles interactive */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-[#0B1C40]">Votre note</label>
                   <div className="flex gap-1 cursor-pointer">
@@ -334,6 +329,7 @@ export default function DetailProduct() {
             <section className="mt-24">
               <BooksCarousel 
                 books={relatedBooks.map(b => ({
+                  
                   image: b.urlImage || "/livre.png",
                   author: b.auteur,
                   title: b.nom,

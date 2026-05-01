@@ -24,7 +24,7 @@ export default function BookCard({
 
   return (
     <Link 
-      href={`/livres/${id}`} 
+      href={"/livres/" + id} 
       className="group flex flex-col transition hover:-translate-y-1 hover:shadow-2xl"
     >
       <div className="relative overflow-hidden rounded-3xl">
@@ -48,7 +48,7 @@ export default function BookCard({
 
       <div className="flex justify-between items-center mt-4">
         <span className="font-bold text-lg" style={{ color: '#BF0F0F' }}>
-          ${price.toFixed(2)}
+          {price.toFixed(2)} FCFA
         </span>
 
         {/* Étoiles avec Lucide */}
