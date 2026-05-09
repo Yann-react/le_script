@@ -28,7 +28,7 @@ interface Avis {
   commentaire: string;
   notation: number;
   dateAvis: string;
-}
+} 
 
 export default function DetailProduct() {
   const params = useParams();
@@ -39,7 +39,7 @@ export default function DetailProduct() {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // États pour le formulaire d'avis
+  //États pour le formulaire d'avis
   const [nom, setNom] = useState('');
   const [commentaire, setCommentaire] = useState('');
   const [notation, setNotation] = useState(5);
