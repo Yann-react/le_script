@@ -8,6 +8,7 @@ import Header from "@/Components/layout/Header";
 import Footer from "@/Components/layout/Footer";
 import BooksCarousel from "@/Components/BooksCarousel";
 import { Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const API_BASE_URL = 'http://localhost:3005';
 
@@ -45,6 +46,7 @@ export default function DetailProduct() {
   const [notation, setNotation] = useState(5);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!bookIdString) return;
@@ -162,7 +164,7 @@ export default function DetailProduct() {
 
   return (
     <>
-      <Header />
+      <Header onNavigate={(path) => router.push(path)} />
       <main className="min-h-screen bg-white">
         <div className="mx-auto max-w-7xl px-6 py-16">
           
@@ -329,7 +331,7 @@ export default function DetailProduct() {
             <section className="mt-24">
               <BooksCarousel 
                 books={relatedBooks.map(b => ({
-                  
+                  id : b.id,
                   image: b.urlImage || "/livre.png",
                   author: b.auteur,
                   title: b.nom,
