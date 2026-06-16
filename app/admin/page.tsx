@@ -5,6 +5,9 @@ import { BookOpen, MessageSquare, Tag, TrendingUp } from 'lucide-react';
 import {  Star } from 'lucide-react';
 
 export default function AdminDashboard() {
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const [stats, setStats] = useState({
     totalLivres: 0,
     totalAvis: 0,
@@ -17,15 +20,15 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         // Récupérer tous les livres
-        const livresRes = await fetch('http://localhost:3005/livres');
+        const livresRes = await fetch(`${API_BASE_URL}/livres`);
         const livres = await livresRes.json();
 
         // Récupérer tous les avis
-        const avisRes = await fetch('http://localhost:3005/avis');
+        const avisRes = await fetch(`${API_BASE_URL}/avis`);
         const avis = await avisRes.json();
 
         // Récupérer tous les types
-        const typesRes = await fetch('http://localhost:3005/types-livre');
+        const typesRes = await fetch(`${API_BASE_URL}/types-livre`);
         const types = await typesRes.json();
 
         // Calcul de la note moyenne globale

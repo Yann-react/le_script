@@ -15,6 +15,7 @@ interface Avis {
 }
 
 export default function AdminAvis() {
+ const  API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [avis, setAvis] = useState<Avis[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,7 +24,7 @@ export default function AdminAvis() {
   // Récupérer tous les avis
   const fetchAvis = async () => {
     try {
-      const res = await fetch('http://localhost:3005/avis');
+      const res = await fetch(`${API_BASE_URL}/avis`);
       const data = await res.json();
       setAvis(data);
     } catch (error) {
@@ -42,7 +43,7 @@ export default function AdminAvis() {
     if (!avisToDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:3005/avis/${avisToDelete.id}`, {
+      const res = await fetch(`${API_BASE_URL}/avis/${avisToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

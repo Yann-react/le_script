@@ -7,9 +7,8 @@ import BooksCarousel from "@/Components/BooksCarousel";
 import Footer from "@/Components/layout/Footer";
 import BookCard from '@/Components/BookCard';
 
-const API_BASE_URL = 'http://localhost:3005';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const ITEMS_PER_PAGE = 10;
-
 interface Book {
   id: number;
   nom: string;

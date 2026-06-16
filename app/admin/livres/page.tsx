@@ -21,6 +21,7 @@ interface TypeLivre {
 }
 
 export default function AdminLivres() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [livres, setLivres] = useState<Livre[]>([]);
   const [types, setTypes] = useState<TypeLivre[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,8 +49,8 @@ export default function AdminLivres() {
   const fetchData = async () => {
     try {
       const [livresRes, typesRes] = await Promise.all([
-        fetch('http://localhost:3005/livres'),
-        fetch('http://localhost:3005/types-livre')
+        fetch(`${API_BASE_URL}/livres`),
+        fetch(`${API_BASE_URL}/types-livre`)
       ]);
       
       const livresData = await livresRes.json();
@@ -136,8 +137,8 @@ export default function AdminLivres() {
     try {
       const method = showEditModal ? 'PATCH' : 'POST';
       const url = showEditModal 
-        ? `http://localhost:3005/livres/${currentLivre?.id}` 
-        : 'http://localhost:3005/livres';
+        ? `${API_BASE_URL}/livres/${currentLivre?.id}` 
+        : `${API_BASE_URL}/livres`;
 
       const res = await fetch(url, {
         method,
@@ -171,7 +172,7 @@ export default function AdminLivres() {
     }
 
     try {
-      const res = await fetch(`http://localhost:3005/livres/${currentLivre.id}`, {
+      const res = await fetch(`${API_BASE_URL}/livres/${currentLivre.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

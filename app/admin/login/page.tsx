@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function AdminLogin() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // Assurez-vous que cette variable d'environnement est définie
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:3005/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, password }),

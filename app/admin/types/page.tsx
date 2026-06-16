@@ -9,6 +9,7 @@ interface TypeLivre {
 }
 
 export default function AdminTypes() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [types, setTypes] = useState<TypeLivre[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,7 @@ export default function AdminTypes() {
   // Récupérer les types
   const fetchTypes = async () => {
     try {
-      const res = await fetch('http://localhost:3005/types-livre');
+      const res = await fetch(`${API_BASE_URL}/types-livre`);
       const data = await res.json();
       setTypes(data);
     } catch (error) {
@@ -64,8 +65,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const method = showEditModal ? 'PATCH' : 'POST';
     const url = showEditModal 
-      ? `http://localhost:3005/types-livre/${currentType?.id}` 
-      : 'http://localhost:3005/types-livre';
+      ? `${API_BASE_URL}/types-livre/${currentType?.id}` 
+      : `${API_BASE_URL}/types-livre`;
 
     const res = await fetch(url, {
       method,
@@ -102,7 +103,7 @@ const handleDelete = async () => {
   }
 
   try {
-    const res = await fetch(`http://localhost:3005/types-livre/${currentType.id}`, {
+    const res = await fetch(`${API_BASE_URL}/types-livre/${currentType.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`   // ← Ajout du token

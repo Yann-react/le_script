@@ -10,7 +10,8 @@ import BooksCarousel from "@/Components/BooksCarousel";
 import { Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL = 'http://localhost:3005';
+// const API_BASE_URL = 'http:localhost:3005'; // Remplacez par l'URL de votre API
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface Book {
   id: number;
