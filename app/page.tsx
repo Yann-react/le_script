@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 10;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface Book {
-  id: string;
+  id: number; // Modifié ici : string -> number
   nom: string;
   auteur: string;
   prix: number;
@@ -23,7 +23,7 @@ interface Book {
 }
 
 interface TypeLivre {
-  id: string;
+  id: number; // Modifié ici : string -> number
   nomType: string;
 }
 

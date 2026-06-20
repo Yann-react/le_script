@@ -13,13 +13,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface Book {
-  id: string;
+  id: number; // Modifié ici : string -> number
   nom: string;
   auteur: string;
   description?: string;
   prix: number;
   urlImage?: string;
-  typeId?: string;
+  typeId?: number; // Modifié ici : string -> number
   type?: { nomType: string };
   statut?: string;
 }
@@ -40,14 +40,14 @@ interface CacheEntry<T> {
 // Cache partagé avec la home (même module)
 const cache: {
   books?: CacheEntry<Book[]>;
-  book?: Record<string, CacheEntry<Book>>;
+  book?: Record<number, CacheEntry<Book>>; // Modifié ici : Record<string, ...> -> Record<number, ...>
 } = {};
 
 function isFresh<T>(entry?: CacheEntry<T>): entry is CacheEntry<T> {
   return !!entry && Date.now() - entry.timestamp < CACHE_TTL_MS;
 }
 
-async function fetchBook(id: string): Promise<Book> {
+async function fetchBook(id: number): Promise<Book> { // Modifié ici : id: string -> number
   if (!cache.book) cache.book = {};
   if (isFresh(cache.book[id])) return cache.book[id].data;
 
@@ -92,7 +92,7 @@ function DetailSkeleton() {
 
 export default function DetailProduct() {
   const params = useParams();
-  const bookId = params?.id as string;
+  const bookId = params?.id ? Number(params.id) : null; // Modifié ici pour récupérer un number ou null
   const router = useRouter();
 
   const [book, setBook] = useState<Book | null>(null);
@@ -108,7 +108,7 @@ export default function DetailProduct() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
-    if (!bookId) return;
+    if (bookId === null || isNaN(bookId)) return; // Protection si l'ID n'est pas un nombre valide
 
     const fetchData = async () => {
       try {
@@ -149,7 +149,7 @@ export default function DetailProduct() {
 
   const handleSubmitAvis = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nom || !commentaire || !bookId) return;
+    if (!nom || !commentaire || bookId === null) return;
     setSubmitting(true);
 
     try {
