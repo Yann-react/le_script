@@ -13,13 +13,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface Book {
-  id: string;
+  id: number;
   nom: string;
   auteur: string;
   description?: string;
   prix: number;
   urlImage?: string;
-  typeId?: string;
+  typeId?: number;
   type?: { nomType: string };
   statut?: string;
 }
@@ -40,14 +40,14 @@ interface CacheEntry<T> {
 // Cache partagé avec la home (même module)
 const cache: {
   books?: CacheEntry<Book[]>;
-  book?: Record<string, CacheEntry<Book>>;
+  book?: Record<number, CacheEntry<Book>>;
 } = {};
 
 function isFresh<T>(entry?: CacheEntry<T>): entry is CacheEntry<T> {
   return !!entry && Date.now() - entry.timestamp < CACHE_TTL_MS;
 }
 
-async function fetchBook(id: string): Promise<Book> {
+async function fetchBook(id: number): Promise<Book> {
   if (!cache.book) cache.book = {};
   if (isFresh(cache.book[id])) return cache.book[id].data;
 
@@ -92,7 +92,7 @@ function DetailSkeleton() {
 
 export default function DetailProduct() {
   const params = useParams();
-  const bookId = params?.id as string;
+  const bookId = params?.id as number;
   const router = useRouter();
 
   const [book, setBook] = useState<Book | null>(null);

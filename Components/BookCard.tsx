@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Star } from 'lucide-react';
 
 interface BookCardProps {
-  id: string;           // ← Très important à ajouter
+  id: number;           // ← Très important à ajouter
   image: string;
   author: string;
   title: string;
