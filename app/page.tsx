@@ -32,27 +32,27 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-// Cache module-level : persiste entre les navigations (SPA), vidé au refresh
-const cache: {
+// Cache module-level
+const cache = {} as {
   books?: CacheEntry<Book[]>;
   types?: CacheEntry<TypeLivre[]>;
-} = {};
+};
 
 function isFresh<T>(entry?: CacheEntry<T>): entry is CacheEntry<T> {
   return !!entry && Date.now() - entry.timestamp < CACHE_TTL_MS;
 }
 
-async function fetchWithCache<T>(
+async function fetchWithCache<T extends Book[] | TypeLivre[]>(
   key: 'books' | 'types',
   url: string
 ): Promise<T> {
-  if (isFresh(cache[key])) {
-    return cache[key]!.data as T;
-  }
+  const entry = cache[key] as CacheEntry<T> | undefined;
+  if (isFresh(entry)) return entry.data;
+
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
   const data: T = await res.json();
-  (cache[key] as CacheEntry<T>) = { data, timestamp: Date.now() };
+  (cache as Record<string, CacheEntry<T>>)[key] = { data, timestamp: Date.now() };
   return data;
 }
 
