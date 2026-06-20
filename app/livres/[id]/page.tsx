@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface Book {
-  id: number;
+  id: string;
   nom: string;
   auteur: string;
   description?: string;
@@ -207,7 +207,7 @@ export default function DetailProduct() {
               <div className="mt-auto flex justify-start">
                 <button 
                   onClick={() => {
-                    const message = `Bonjour,%0AJe suis intéressé(e) par le livre *${book.nom}* de ${book.auteur}.%0A%0APouvez-vous me confirmer le prix et la disponibilité ?%0A%0AMerci !`;
+                    const message = `Bonjour,%0AJe suis intéressé(e) par le livre *${book.nom}* de ${book.auteur}.%0A%0APouvez-vous me confirmer le prix ${book.prix.toLocaleString('fr-FR')} FCFA et la disponibilité ?%0A%0AMerci !`;
                     window.open(`https://wa.me/2250767571379?text=${message}`, '_blank');
                   }}
                   className="rounded-xl bg-[#25D366] hover:bg-[#128C7E] px-10 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg transition flex items-center gap-3"

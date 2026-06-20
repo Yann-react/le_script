@@ -10,7 +10,7 @@ import BookCard from '@/Components/BookCard';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const ITEMS_PER_PAGE = 10;
 interface Book {
-  id: number;
+  id: string;
   nom: string;
   auteur: string;
   prix: number;
@@ -21,7 +21,7 @@ interface Book {
 }
 
 interface TypeLivre {
-  id: number;
+  id: string;
   nomType: string;
 }
 

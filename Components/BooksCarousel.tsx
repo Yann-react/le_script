@@ -4,7 +4,7 @@ import { useState } from 'react';
 import BookCard from './BookCard';
 
 interface Book {
-  id: number;           // ← Ajoute cette ligne
+  id: string;           // ← Ajoute cette ligne
   image: string;
   author: string;
   title: string;
