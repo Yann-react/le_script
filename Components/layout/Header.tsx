@@ -16,7 +16,7 @@ export default function Header({ onNavigate }: HeaderProps) {
             width={70}
             height={50}
             className="object-contain cursor-pointer"
-            onClick={() => onNavigate('Accueil')}
+            onClick={() => onNavigate('/')}
           />
         </div>
 

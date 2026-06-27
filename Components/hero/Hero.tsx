@@ -1,11 +1,18 @@
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 
-interface HeroProps {
-  onSearch: (searchTerm: string, type: string) => void;
+interface TypeLivre {
+  id: number;
+  nomType: string;
 }
 
-export default function Hero({ onSearch }: HeroProps) {
+interface HeroProps {
+  onSearch: (searchTerm: string, type: string) => void;
+  types: TypeLivre[];
+
+}
+
+export default function Hero({ onSearch, types }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white to-red-200">
       <div 
@@ -53,7 +60,7 @@ export default function Hero({ onSearch }: HeroProps) {
         </div>
       </div>
 
-      <SearchBar onSearch={onSearch} />
+    <SearchBar onSearch={onSearch} types={types} />
     </section>
   );
 }

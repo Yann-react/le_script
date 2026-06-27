@@ -2,11 +2,17 @@
 
 import { useState } from 'react';
 
-interface SearchBarProps {
-  onSearch: (searchTerm: string, type: string) => void;
+interface TypeLivre {
+  id: number;
+  nomType: string;
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
+interface SearchBarProps {
+  onSearch: (searchTerm: string, type: string) => void;
+  types: TypeLivre[];
+}
+
+export default function SearchBar({ onSearch, types }: SearchBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
 
@@ -16,7 +22,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   return (
-    <form 
+    <form
       onSubmit={handleSubmit}
       className="absolute bottom-[20px] left-1/2 -translate-x-1/2 w-[90%] max-w-5xl bg-slate-100/95 backdrop-blur-xl rounded-[2rem] p-6 shadow-2xl border border-slate-200 z-30 flex flex-col gap-5 md:flex-row items-end"
     >
@@ -31,15 +37,9 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-red-600 focus:ring-2 focus:ring-red-100"
         >
           <option value="">Tous les types</option>
-          <option value="Roman">Roman</option>
-          <option value="Science-Fiction">Science-Fiction</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Policier">Policier</option>
-          <option value="Biographie">Biographie</option>
-          <option value="Essai">Essai</option>
-          <option value="Poésie">Poésie</option>
-          <option value="Histoire">Histoire</option>
-          <option value="Thriller">Thriller</option>
+          {types.map((type) => (
+            <option key={type.id} value={type.nomType}>{type.nomType}</option>
+          ))}
         </select>
       </div>
 
