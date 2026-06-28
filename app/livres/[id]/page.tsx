@@ -12,6 +12,20 @@ import { Star } from 'lucide-react';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const res = await fetch(`${API_BASE_URL}/livres/${params.id}`);
+  const livre = await res.json();
+
+  return {
+    title: livre.nom,
+    description: livre.description ?? `${livre.nom} par ${livre.auteur}`,
+    openGraph: {
+      title: livre.nom,
+      description: livre.description ?? `${livre.nom} par ${livre.auteur}`,
+      images: livre.urlImage ? [{ url: livre.urlImage }] : [],
+    },
+  };
+}
 interface Book {
   id: number; // Modifié ici : string -> number
   nom: string;
