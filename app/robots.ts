@@ -1,12 +1,18 @@
-import { MetadataRoute } from 'next';
-
-export default function robots(): MetadataRoute.Robots {
+export default function robots() {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: '/admin/',
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/'],
+        crawlDelay: 10, // limite les bots à 1 requête/10s
+      },
+      {
+        // Bots agressifs connus
+        userAgent: ['AhrefsBot', 'SemrushBot', 'MJ12bot', 'DotBot'],
+        disallow: '/',
+      },
+    ],
     sitemap: 'https://lescripts.com/sitemap.xml',
   };
 }

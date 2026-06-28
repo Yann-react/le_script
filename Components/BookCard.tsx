@@ -21,15 +21,18 @@ export default function BookCard({
 }: BookCardProps) {
   const fullStars = Math.floor(rating);
   const decimalPart = rating % 1;
-
+  const optimizedImage = image?.includes('cloudinary.com')
+  ? image.replace('/upload/', '/upload/w_400,q_auto,f_auto/')
+  : image;
   return (
     <Link 
       href={"/livres/" + id} 
+      prefetch={false} 
       className="group flex flex-col transition hover:-translate-y-1 hover:shadow-2xl"
     >
       <div className="relative overflow-hidden rounded-3xl">
         <Image
-          src={image}
+          src={optimizedImage || image}
           alt={title}
           width={250}
           height={350}
