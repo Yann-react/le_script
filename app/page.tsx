@@ -10,7 +10,6 @@ import BookCard from '@/Components/BookCard';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const ITEMS_PER_PAGE = 10;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
 interface Book {
   id: number; // Modifié ici : string -> number
   nom: string;
