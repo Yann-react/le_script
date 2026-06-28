@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import LivreDetail from './LivreDetail';
+import DetailProduct from './DetailProduct';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,5 +22,5 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default function Page({ params }: { params: { id: string } }) {
-  return <LivreDetail id={params.id} />;
+  return <DetailProduct />;
 }
