@@ -43,8 +43,8 @@ export default function Footer() {
           <div className="md:col-span-4">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-widest text-[#94A3B8]">Contact</h3>
             <div className="space-y-3 text-sm text-[#CBD5E1]">
-              <p>Email : XXXXXXXX</p>
-              <p>Téléphone : XXXXXXXXXXX</p>
+              <p>Email : info@lescripts.com</p>
+              <p>Téléphone : +225 07 47 82 72 06</p>
             
             </div>
           </div>
